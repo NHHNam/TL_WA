@@ -1,0 +1,82 @@
+<div class="hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-5 col-sm-12 box-user">
+                <h1 class="header">Danh người tham gia chat</h1>
+                <div class="row" id="list-user">
+
+                </div>
+                {{!-- <ul id="list-user">
+                    
+                </ul> --}}
+            </div>
+            <div class="col-lg-7 col-sm-12 box-chat">
+                <ul id="messages"></ul>
+                <div>
+                    <form id="chat-form">
+                        <input type="text" id="chat-mess" class="chat-input">
+                        <i class="material-icons icons" style="font-size:20px">sentiment_very_satisfied</i>
+                        <button type="submit" class="btn" id="chat-send"><i class="material-icons" style="font-size:20px">send</i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io()
+    const name = prompt('What is your name ?')
+    const chatForm = document.querySelector('#chat-form')
+    const chatMess = document.querySelector('#chat-mess')
+    const sendBTN = document.querySelector('#chat-send')
+    const messages = document.querySelector('#messages')
+    const chatMember = document.querySelector('#list-user')
+
+    const members = []
+
+    chatForm.addEventListener('submit', (e) => {
+        e.preventDefault()
+
+        const message = chatMess.value
+        socket.emit('chat', {message, name})
+        chatMess.value = ''
+    })
+
+    let i = 0;
+    socket.on('user-chat', (message) => {
+        if(!members.includes(message.name)){
+            members.push(message.name)
+            chatMember.innerHTML = ''
+            for(let i = 0; i < members.length; i++){
+                const div = document.createElement('div')
+                div.classList.add('col-sm-3')
+                div.innerHTML = `
+                    <img class="avatar" src="/images/vodien.png" alt="Avatar">
+                    <div class="name_user">${members[i]}</div>
+                `
+                chatMember.appendChild(div)
+            }
+        }
+        const li = document.createElement('li')
+        if(i === 1){
+            li.classList.add('two')
+            li.innerHTML = `
+                <img src="./images/vodien.png" alt="">
+                <h3>${message.name}: ${message.message}</h3>
+            `
+            i = 0
+            messages.appendChild(li)
+        }else{
+            li.classList.add('one')
+            li.innerHTML = `
+                <img src="./images/vodien.png" alt="">
+                <h3>${message.name}: ${message.message}</h3>
+            `
+            i = 1
+            messages.appendChild(li)
+        }
+    })
+
+</script>
