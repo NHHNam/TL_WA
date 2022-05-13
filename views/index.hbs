@@ -1,3 +1,21 @@
+<!-- Register dialog -->
+    <div class="modal fade" id="register-chat">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id='register' class='input-group-register'>
+                    <input type='text'class='input-field' placeholder='Họ' required>
+                    <input type='text'class='input-field' id="name_register" placeholder='Tên' required>
+                    <input type='email'class='input-field' placeholder='Email' required>
+                    <input type='password'class='input-field' placeholder='Password' required>
+                    <input type='password'class='input-field' placeholder='Confirm Password' required>
+                    <input type='checkbox'class='check-box'><span>Tôi đồng ý với các điều khoản</span>
+                    <button id="subnmitRegister" type='submit'class='submit-btn'>Đăng ký</button>      
+                </form>         
+            </div>
+        </div>
+      </div>
+
+<button type='submit'class='submit-btn' data-toggle="modal" data-target="#register-chat">Đăng ký</button>
 <div class="hero">
     <div class="container">
         <div class="row">
@@ -27,12 +45,18 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
     const socket = io()
-    const name = prompt('What is your name ?')
     const chatForm = document.querySelector('#chat-form')
     const chatMess = document.querySelector('#chat-mess')
     const sendBTN = document.querySelector('#chat-send')
     const messages = document.querySelector('#messages')
     const chatMember = document.querySelector('#list-user')
+    const formRegister = document.querySelector('#register')
+    
+    formRegister.addEventListener('submit', e => {
+        e.preventDefault()
+        const name = document.getElementById("name_register").value
+        console.log(name);
+    })
 
     const members = []
 
@@ -80,3 +104,5 @@
     })
 
 </script>
+
+
