@@ -7,6 +7,8 @@ const {Server} = require('socket.io')
 const hbs = require('express-handlebars')
 const io = new Server(server)
 const path = require('path')
+const Chat = require('./models/chat')
+const mongoose = require('mongoose')
 
 app.use(express.static(path.join(__dirname, 'public')))
 // app.use('/views', express.static(path.join(__dirname, 'views')))
@@ -14,17 +16,46 @@ app.engine('hbs', hbs.engine({ defaultLayout: 'main',extname: '.hbs'}));
 app.set('view engine', 'hbs');
 app.set('views', __dirname + '/views');
 
-app.get('/', (req, res) => {
-    res.render('index')
-})
+mongoose.connect('mongodb://localhost:27017/tieuluan', (err, db) => {
+    if(err) throw err
 
-io.on('connection', (socket) => {
-    socket.on('chat', data =>{
-        io.emit('user-chat', data)
+    io.on('connection', (socket) => {
+        Chat.find((err, messages) => {
+            if(err) throw err
+
+            // Emit messages
+            socket.emit('output', messages)
+        }).limit(100)
+
+        socket.on('input', (data) => {
+            let name = data.name
+            let message = data.message
+    
+            const newChat = Chat({
+                name: name,
+                message: message,
+            })
+    
+            newChat.save((err, chat) => {
+                if(err) throw err
+                // console.log(chat)
+                io.emit('newchat', chat)
+            })
+    
+            // console.log(data)
+        })
     })
 
 })
 
-server.listen(3000, ()=>{
-    console.log('http://localhost:3000')
+
+app.get('/', (req, res) => {
+    res.render('index')
+})
+
+
+
+
+server.listen(5000, ()=>{
+    console.log('http://localhost:5000')
 })

@@ -1,32 +1,48 @@
+
+{{!-- <div class="container">
+    <h1>Chat app</h1>
+
+    <input type="text" placeholder="Enter your name" id="name">
+    <input type="text" placeholder="Enter your message" id="message">
+
+    <ul id="messages">
+
+    </ul>
+
+    <button id="sendBTN">Send</button>
+</div> --}}
+
 <!-- Register dialog -->
     <div class="modal fade" id="register-chat">
         <div class="modal-dialog">
             <div class="modal-content">
                 <form id='register' class='input-group-register'>
-                    <input type='text'class='input-field' placeholder='Họ' required>
                     <input type='text'class='input-field' id="name_register" placeholder='Tên' required>
-                    <input type='email'class='input-field' placeholder='Email' required>
-                    <input type='password'class='input-field' placeholder='Password' required>
-                    <input type='password'class='input-field' placeholder='Confirm Password' required>
-                    <input type='checkbox'class='check-box'><span>Tôi đồng ý với các điều khoản</span>
-                    <button id="subnmitRegister" type='submit'class='submit-btn'>Đăng ký</button>      
+                    <button onclick="hideDialog()" id="subnmitRegister" type='submit'class='submit-btn'>Đăng ký</button>      
                 </form>         
             </div>
         </div>
       </div>
 
-<button type='submit'class='submit-btn' data-toggle="modal" data-target="#register-chat">Đăng ký</button>
-<div class="hero">
+<div class="enter" id="enter">
+        <div class="row">
+            <div class="col-lg-12 col-sm-12 box-user">
+                <button onclick="hideEnter()" type='submit'class='submit-btn' data-toggle="modal" data-target="#register-chat">Vào chat</button>
+            </div>
+        </div>
+</div>
+
+<div class="hero" id="hero">
     <div class="container">
         <div class="row">
             <div class="col-lg-5 col-sm-12 box-user">
-                <h1 class="header">Danh người tham gia chat</h1>
-                <div class="row" id="list-user">
+                <h1 class="header">Người chat</h1>
+                {{!-- <div class="row" id="list-user">
 
-                </div>
-                {{!-- <ul id="list-user">
+                </div> --}}
+                <ul id="list-user">
                     
-                </ul> --}}
+                </ul>
             </div>
             <div class="col-lg-7 col-sm-12 box-chat">
                 <ul id="messages"></ul>
@@ -51,58 +67,71 @@
     const messages = document.querySelector('#messages')
     const chatMember = document.querySelector('#list-user')
     const formRegister = document.querySelector('#register')
+    let name = ""
     
     formRegister.addEventListener('submit', e => {
         e.preventDefault()
-        const name = document.getElementById("name_register").value
-        console.log(name);
+        name = document.getElementById("name_register").value
+        let li = document.createElement('li')
+        li.innerHTML = `
+            <img src="./images/vodien.png" alt="">
+            <h3>${name}</h3>
+        `
+        chatMember.appendChild(li)
     })
 
-    const members = []
+    function hideEnter(){
+        document.getElementById('enter').style.display = 'none';
+        document.getElementById('hero').style.display = 'flex';
+    }
 
-    chatForm.addEventListener('submit', (e) => {
-        e.preventDefault()
+    function hideDialog(){
+        $("#register-chat").modal('hide');
+    }
 
-        const message = chatMess.value
-        socket.emit('chat', {message, name})
-        chatMess.value = ''
-    })
+    if(socket !== undefined){
+        console.log("Connecting .....")
 
-    let i = 0;
-    socket.on('user-chat', (message) => {
-        if(!members.includes(message.name)){
-            members.push(message.name)
-            chatMember.innerHTML = ''
-            for(let i = 0; i < members.length; i++){
-                const div = document.createElement('div')
-                div.classList.add('col-sm-3')
-                div.innerHTML = `
-                    <img class="avatar" src="/images/vodien.png" alt="Avatar">
-                    <div class="name_user">${members[i]}</div>
-                `
-                chatMember.appendChild(div)
+        // handle output of chat app
+        let t = 0
+        socket.on('output', data => {
+            console.log(data.length)
+            if(data.length){
+                for(let i =0; i < data.length; i++){
+                    let li = document.createElement('li')
+                    li.classList.add('two')
+                    li.innerHTML = `
+                        <img src="./images/vodien.png" alt="">
+                        <h3>${data[i].name}: ${data[i].message}</h3>
+                    `
+                    messages.appendChild(li)
+                    messages.insertBefore(li, messages.firstChild)
+                }
             }
-        }
-        const li = document.createElement('li')
-        if(i === 1){
+        })
+
+        // handle input chat app
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault()
+            const message = chatMess.value
+
+            socket.emit('input', {
+                name, message
+            })
+            chatMess.value = ""
+        })
+
+        
+        // handle new input
+        socket.on('newchat', data => {
+            let li = document.createElement('li')
             li.classList.add('two')
             li.innerHTML = `
                 <img src="./images/vodien.png" alt="">
-                <h3>${message.name}: ${message.message}</h3>
+                <h3>${data.name}: ${data.message}</h3>
             `
-            i = 0
             messages.appendChild(li)
-        }else{
-            li.classList.add('one')
-            li.innerHTML = `
-                <img src="./images/vodien.png" alt="">
-                <h3>${message.name}: ${message.message}</h3>
-            `
-            i = 1
-            messages.appendChild(li)
-        }
-    })
-
+            messages.insertBefore(li, messages.firstChild)
+        })
+    }
 </script>
-
-

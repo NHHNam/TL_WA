@@ -1,7 +1,16 @@
-.hero{
+.enter{
     width: 100%;
     height: 100vh;
     display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.hero{
+    width: 100%;
+    height: 100vh;
+    display: none;
     justify-content: center;
     align-items: center;
     position: relative;
@@ -96,6 +105,9 @@ ul#messages li p{
 }
 
 
+.register-chat{
+    display: inline;
+}
 .input-group-register
 {
     max-width: 700px;
